@@ -1,5 +1,8 @@
 # Subtitle Translator (English to Danish)
 
+[![Tests](https://github.com/mikkelrask/subtrans/actions/workflows/tests.yml/badge.svg)](https://github.com/mikkelrask/subtrans/actions)
+[![codecov](https://codecov.io/gh/mikkelrask/subtrans/branch/main/graph/badge.svg)](https://codecov.io/gh/mikkelrask/subtrans)
+
 A Python application that uses local machine learning models to translate subtitles. Uses the **Helsinki-NLP English to Danish model** by default, but can be modified to use any of the **Helsinki-NLP translation models**.
 
 ## Features
