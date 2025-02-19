@@ -1,5 +1,5 @@
 import pytest
-from src.subtitle_extractor import format_stream_info, SubtitleExtractor
+from subtitle_extractor import format_stream_info, SubtitleExtractor
 from pathlib import Path
 from unittest.mock import patch
 import json

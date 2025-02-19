@@ -5,12 +5,14 @@ from transformers import pipeline
 from pathlib import Path
 import torch
 import argparse
-from src.subtitle_formats import get_subtitle_handler
-from src.config import get_model_name
+from subtitle_formats import get_subtitle_handler
+from config import get_model_name
 
 class SubtitleTranslator:
-    def __init__(self):
+    def __init__(self, device=None):
         device = "cuda" if torch.cuda.is_available() else "cpu"
+        if device is not None:
+            device = device
         print(f"Using device: {device}")
         
         self.translator = pipeline(

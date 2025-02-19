@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from src.batch_translator import find_subtitle_files, needs_translation, calculate_directory_hash
+from batch_translator import find_subtitle_files, needs_translation, calculate_directory_hash
 
 def test_needs_translation(tmp_path):
     # Create a test file

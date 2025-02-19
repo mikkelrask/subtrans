@@ -1,11 +1,11 @@
 from pathlib import Path
 import argparse
-from typing import List, Optional
-from src.translator import process_single_file
+from translator import process_single_file
 import hashlib
 import json
 import time
-from src.config import get_source_patterns, get_target_suffix
+from typing import List, Optional
+from config import get_source_patterns, get_target_suffix
 
 HASH_FILE = Path.home() / '.subtitle_translator_state.json'
 

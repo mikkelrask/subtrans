@@ -4,7 +4,7 @@ from pathlib import Path
 import argparse
 from typing import List, Dict
 import shutil
-from src.translator import process_single_file
+from translator import process_single_file
 
 def check_dependencies() -> bool:
     missing = []

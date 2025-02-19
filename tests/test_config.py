@@ -1,5 +1,5 @@
 import pytest
-from src.config import (
+from config import (
     get_source_patterns,
     get_target_suffix,
     get_model_name,

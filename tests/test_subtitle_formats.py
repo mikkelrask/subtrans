@@ -1,5 +1,5 @@
 import pytest
-from src.subtitle_formats import get_subtitle_handler, SrtFormat, AssFormat
+from subtitle_formats import get_subtitle_handler, SrtFormat, AssFormat
 from pathlib import Path
 
 def test_get_subtitle_handler_srt():

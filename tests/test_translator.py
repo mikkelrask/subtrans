@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from src.translator import SubtitleTranslator
+from translator import SubtitleTranslator
 import torch
 
 @pytest.mark.timeout(300)  # 5 minutes timeout for first run
