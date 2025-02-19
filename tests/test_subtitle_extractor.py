@@ -1,6 +1,8 @@
 import pytest
 from src.subtitle_extractor import format_stream_info, SubtitleExtractor
 from pathlib import Path
+from unittest.mock import patch
+import json
 
 def test_format_stream_info():
     stream = {
@@ -40,12 +42,27 @@ def test_subtitle_extractor_init(tmp_path):
 @pytest.mark.skipif(not Path("/usr/bin/ffmpeg").exists(),
                    reason="Requires ffmpeg")
 def test_get_subtitle_streams(tmp_path):
-    # This is a bit tricky to test without a real media file
-    # We could create a minimal test video with subtitles
-    # For now, we'll just test the error handling
     test_file = tmp_path / "test.mkv"
     test_file.touch()
     
-    extractor = SubtitleExtractor(str(test_file))
-    streams = extractor.get_subtitle_streams()
-    assert isinstance(streams, list) 
+    mock_streams = {
+        'streams': [
+            {
+                'codec_type': 'subtitle',
+                'codec_name': 'ass',
+                'tags': {'language': 'eng'}
+            }
+        ]
+    }
+    
+    with patch('subprocess.run') as mock_run:
+        # Mock successful ffprobe call
+        mock_run.return_value.stdout = json.dumps(mock_streams)
+        mock_run.return_value.returncode = 0
+        
+        extractor = SubtitleExtractor(str(test_file))
+        streams = extractor.get_subtitle_streams()
+        
+        assert len(streams) == 1
+        assert streams[0]['codec_name'] == 'ass'
+        assert streams[0]['tags']['language'] == 'eng' 

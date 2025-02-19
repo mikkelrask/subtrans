@@ -14,10 +14,10 @@ jobs:
         python-version: [3.8, 3.9, '3.10']
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     
@@ -45,7 +45,7 @@ jobs:
         file: ./coverage.xml 
 
     - name: Cache pip packages
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -53,7 +53,7 @@ jobs:
           ${{ runner.os }}-pip-
 
     - name: Cache HF models
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.cache/huggingface
         key: ${{ runner.os }}-hf-${{ hashFiles('src/config.py') }}
@@ -68,7 +68,7 @@ jobs:
       options: --gpus all
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     
     - name: Set up Python
       uses: actions/setup-python@v2
