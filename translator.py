@@ -1,6 +1,3 @@
-import warnings
-warnings.filterwarnings("ignore", message=".*pip install sacremoses.*")
-
 from transformers import pipeline
 from pathlib import Path
 import torch

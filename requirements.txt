@@ -3,3 +3,4 @@ torch
 pysrt
 sentencepiece
 ass
+sacremoses
