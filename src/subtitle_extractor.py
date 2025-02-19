@@ -52,18 +52,36 @@ class SubtitleExtractor:
             raise RuntimeError(f"Error parsing ffprobe output: {e}")
 
     def extract_subtitle(self, stream_index: int) -> Path:
-        output_path = self.media_file.with_suffix('.en.srt')
+        streams = self.get_subtitle_streams()
+        stream = streams[stream_index]
+        codec_name = stream.get('codec_name', '').lower()
         
+        if codec_name in ['ass', 'ssa']:
+            extension = '.en.ass'
+        else:
+            extension = '.en.srt'
+        
+        output_path = self.media_file.with_suffix(extension)
         if output_path.exists():
-            output_path = self.media_file.with_suffix(f'.stream{stream_index}.en.srt')
+            output_path = self.media_file.with_suffix(f'.stream{stream_index}{extension}')
 
-        cmd = [
-            'ffmpeg',
-            '-v', 'quiet',
-            '-i', str(self.media_file),
-            '-map', f'0:s:{stream_index}',
-            str(output_path)
-        ]
+        if codec_name in ['ass', 'ssa']:
+            cmd = [
+                'ffmpeg',
+                '-v', 'quiet',
+                '-i', str(self.media_file),
+                '-map', f'0:s:{stream_index}',
+                '-c:s', 'copy',
+                str(output_path)
+            ]
+        else:
+            cmd = [
+                'ffmpeg',
+                '-v', 'quiet',
+                '-i', str(self.media_file),
+                '-map', f'0:s:{stream_index}',
+                str(output_path)
+            ]
 
         try:
             subprocess.run(cmd, check=True)
@@ -79,6 +97,10 @@ def format_stream_info(stream: Dict) -> str:
     
     if 'tags' in stream and 'title' in stream['tags']:
         info.append(f"Title: {stream['tags']['title']}")
+    
+    # Add codec info if available
+    if 'codec_name' in stream:
+        info.append(f"Codec: {stream['codec_name']}")
     
     dispositions = [k for k, v in stream.get('disposition', {}).items() if v == 1]
     if dispositions:

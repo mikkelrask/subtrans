@@ -2,10 +2,11 @@ import warnings
 warnings.filterwarnings("ignore", message=".*pip install sacremoses.*")
 
 from transformers import pipeline
-import pysrt
 from pathlib import Path
 import torch
 import argparse
+from subtitle_formats import get_subtitle_handler
+from config import get_model_name
 
 class SubtitleTranslator:
     def __init__(self):
@@ -14,7 +15,7 @@ class SubtitleTranslator:
         
         self.translator = pipeline(
             "translation",
-            model="Helsinki-NLP/opus-mt-en-da",
+            model=get_model_name(),
             device=device
         )
 
@@ -45,15 +46,20 @@ class SubtitleTranslator:
         
         return '\n'.join(translated_lines)
 
-    def translate_srt(self, input_path: str, output_path: str):
-        subs = pysrt.open(input_path)
+    def translate_subtitle_file(self, input_path: str, output_path: str):
+        handler = get_subtitle_handler(input_path)
+        subs = handler.read(input_path)
         
-        total = len(subs)
-        for i, sub in enumerate(subs, 1):
+        total = len(subs.events if hasattr(subs, 'events') else subs)
+        items = subs.events if hasattr(subs, 'events') else subs
+        
+        for i, sub in enumerate(items, 1):
             print(f"[{input_path}] Translating subtitle {i}/{total}...")
-            sub.text = self.translate_text(sub.text)
+            text = handler.get_text(sub)
+            translated = self.translate_text(text)
+            handler.set_text(sub, translated)
         
-        subs.save(output_path, encoding='utf-8')
+        handler.save(subs, output_path)
         print(f"Translation completed! Saved to: {output_path}")
 
 def process_single_file(input_file: str) -> None:
@@ -65,7 +71,7 @@ def process_single_file(input_file: str) -> None:
         output_path = input_path.parent / f"{input_path.stem}.da{input_path.suffix}"
     
     translator = SubtitleTranslator()
-    translator.translate_srt(str(input_path), str(output_path))
+    translator.translate_subtitle_file(str(input_path), str(output_path))
 
 def main():
     parser = argparse.ArgumentParser(description='Translate English SRT files to Danish')

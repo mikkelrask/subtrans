@@ -5,27 +5,32 @@ import hashlib
 import json
 import time
 from typing import Optional
+from config import get_source_patterns, get_target_suffix
 
 HASH_FILE = Path.home() / '.subtitle_translator_state.json'
 
 def find_subtitle_files(directory: str) -> list[Path]:
     base_dir = Path(directory)
-    return list(base_dir.rglob("*.en.srt"))
+    all_files = []
+    for pattern in get_source_patterns():
+        all_files.extend(base_dir.rglob(pattern))
+    return all_files
 
 def needs_translation(srt_file: Path) -> bool:
-    da_srt = srt_file.parent / f"{srt_file.stem[:-3]}.da.srt"
-    return not da_srt.exists()
+    target_file = srt_file.parent / f"{srt_file.stem[:-3]}{get_target_suffix()}{srt_file.suffix}"
+    return not target_file.exists()
 
 def calculate_directory_hash(directory: Path) -> str:
     hasher = hashlib.md5()
     
-    srt_files = []
-    for path in sorted(directory.rglob("*.en.srt")):
-        stats = path.stat()
-        file_info = f"{path}|{stats.st_size}|{stats.st_mtime}"
-        srt_files.append(file_info)
+    subtitle_files = []
+    for pattern in get_source_patterns():
+        for path in sorted(directory.rglob(pattern)):
+            stats = path.stat()
+            file_info = f"{path}|{stats.st_size}|{stats.st_mtime}"
+            subtitle_files.append(file_info)
     
-    dir_content = "\n".join(srt_files)
+    dir_content = "\n".join(subtitle_files)
     hasher.update(dir_content.encode())
     
     return hasher.hexdigest()
@@ -62,7 +67,8 @@ def process_directory(directory: str) -> None:
         subtitle_files = find_subtitle_files(directory)
         
         if not subtitle_files:
-            print(f"No .en.srt files found in {directory}")
+            print(f"No .en.srt or .en.ass files found in {directory}")
+            save_current_hash(current_hash)
             return
         
         files_to_process = [f for f in subtitle_files if needs_translation(f)]
@@ -75,17 +81,23 @@ def process_directory(directory: str) -> None:
         print(f"Found {len(subtitle_files)} subtitle files")
         print(f"Need to process {len(files_to_process)} files (skipping {len(subtitle_files) - len(files_to_process)} already translated)")
         
+        # Save initial hash to mark start of processing
+        save_current_hash(current_hash)
+        
         for i, srt_file in enumerate(files_to_process, 1):
             print(f"\nProcessing file {i}/{len(files_to_process)}: {srt_file}")
             try:
                 process_single_file(str(srt_file))
+                # Save hash after each successful translation
+                save_current_hash(current_hash)
             except Exception as e:
                 print(f"Error processing {srt_file}: {str(e)}")
         
+        # Final save to mark completion
         save_current_hash(current_hash)
 
     except KeyboardInterrupt:
-        print("\nOperation cancelled by user. Exiting...")
+        print("\nOperation cancelled by user. Progress has been saved.")
         return 1
     
     return 0
