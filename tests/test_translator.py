@@ -2,6 +2,7 @@ import pytest
 from pathlib import Path
 from src.translator import SubtitleTranslator
 
+@pytest.mark.timeout(300)  # 5 minutes timeout for first run
 def test_translate_text():
     translator = SubtitleTranslator()
     result = translator.translate_text("Hello world")
