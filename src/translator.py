@@ -5,8 +5,8 @@ from transformers import pipeline
 from pathlib import Path
 import torch
 import argparse
-from subtitle_formats import get_subtitle_handler
-from config import get_model_name
+from src.subtitle_formats import get_subtitle_handler
+from src.config import get_model_name
 
 class SubtitleTranslator:
     def __init__(self):
