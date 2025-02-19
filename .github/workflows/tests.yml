@@ -30,6 +30,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pytest pytest-cov
+        pip install -r requirements-dev.txt
         pip install -r requirements.txt
         pip install -e .
     
@@ -42,6 +43,22 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage.xml 
+
+    - name: Cache pip packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Cache HF models
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/huggingface
+        key: ${{ runner.os }}-hf-${{ hashFiles('src/config.py') }}
+        restore-keys: |
+          ${{ runner.os }}-hf-
 
   test-gpu:
     runs-on: ubuntu-latest

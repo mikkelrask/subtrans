@@ -1,15 +1,15 @@
 from pathlib import Path
 import argparse
+from typing import List, Optional
 from src.translator import process_single_file
 import hashlib
 import json
 import time
-from typing import Optional
 from src.config import get_source_patterns, get_target_suffix
 
 HASH_FILE = Path.home() / '.subtitle_translator_state.json'
 
-def find_subtitle_files(directory: str) -> list[Path]:
+def find_subtitle_files(directory: str) -> List[Path]:
     base_dir = Path(directory)
     all_files = []
     for pattern in get_source_patterns():
