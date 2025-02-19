@@ -98,7 +98,6 @@ def format_stream_info(stream: Dict) -> str:
     if 'tags' in stream and 'title' in stream['tags']:
         info.append(f"Title: {stream['tags']['title']}")
     
-    # Add codec info if available
     if 'codec_name' in stream:
         info.append(f"Codec: {stream['codec_name']}")
     
